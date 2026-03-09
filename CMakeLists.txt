@@ -103,6 +103,7 @@ set(LIBDATACHANNEL_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/plihandler.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/pacinghandler.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/rembhandler.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/jitterbuffer.cpp
 )
 
 set(LIBDATACHANNEL_HEADERS
@@ -147,6 +148,7 @@ set(LIBDATACHANNEL_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/include/rtc/pacinghandler.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/include/rtc/rembhandler.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/include/rtc/version.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/rtc/jitterbuffer.h
 )
 
 set(LIBDATACHANNEL_IMPL_SOURCES
@@ -215,6 +217,7 @@ set(LIBDATACHANNEL_IMPL_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/impl/websocketserver.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/impl/wstransport.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/impl/wshandshake.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/impl/lrucache.h
 )
 
 set(TESTS_SOURCES
@@ -233,7 +236,7 @@ set(TESTS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/test/benchmark.cpp
 )
 
-set(TESTS_HEADERS 
+set(TESTS_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/test/test.hpp
 )
 
@@ -268,7 +271,8 @@ add_library(datachannel
 	${LIBDATACHANNEL_SOURCES}
 	${LIBDATACHANNEL_HEADERS}
 	${LIBDATACHANNEL_IMPL_SOURCES}
-	${LIBDATACHANNEL_IMPL_HEADERS})
+	${LIBDATACHANNEL_IMPL_HEADERS}
+)
 set_target_properties(datachannel PROPERTIES
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -444,17 +448,17 @@ else()
 		# This is a bug in CMake that causes it to prefer the system version over
 		# the one in the specified ROOT folder
 		if(EXISTS ${OPENSSL_ROOT_DIR})
-            # Use static files when OPENSSL_USE_STATIC_LIBS is set.
-            # OPENSSL_USE_STATIC_LIBS is what CMake's FindOpenSSL looks at
-            # to decide whether to use static libraries.
-            if(OPENSSL_USE_STATIC_LIBS)
-                set(OPENSSL_CRYPTO_LIBRARY "${OPENSSL_ROOT_DIR}/lib/libcrypto.a" CACHE FILEPATH "" FORCE)
-                set(OPENSSL_SSL_LIBRARY "${OPENSSL_ROOT_DIR}/lib/libssl.a" CACHE FILEPATH "" FORCE)
-            else()
-                set(OPENSSL_CRYPTO_LIBRARY "${OPENSSL_ROOT_DIR}/lib/libcrypto.dylib" CACHE FILEPATH "" FORCE)
-                set(OPENSSL_SSL_LIBRARY "${OPENSSL_ROOT_DIR}/lib/libssl.dylib" CACHE FILEPATH "" FORCE)
-            endif()
-		endif()
+			# Use static files when OPENSSL_USE_STATIC_LIBS is set.
+	    # OPENSSL_USE_STATIC_LIBS is what CMake's FindOpenSSL looks at
+	    # to decide whether to use static libraries.
+	    if(OPENSSL_USE_STATIC_LIBS)
+		set(OPENSSL_CRYPTO_LIBRARY "${OPENSSL_ROOT_DIR}/lib/libcrypto.a" CACHE FILEPATH "" FORCE)
+		set(OPENSSL_SSL_LIBRARY "${OPENSSL_ROOT_DIR}/lib/libssl.a" CACHE FILEPATH "" FORCE)
+	    else()
+		set(OPENSSL_CRYPTO_LIBRARY "${OPENSSL_ROOT_DIR}/lib/libcrypto.dylib" CACHE FILEPATH "" FORCE)
+		set(OPENSSL_SSL_LIBRARY "${OPENSSL_ROOT_DIR}/lib/libssl.dylib" CACHE FILEPATH "" FORCE)
+	    endif()
+                endif()
 	endif()
 	find_package(OpenSSL REQUIRED)
 	target_compile_definitions(datachannel PRIVATE USE_GNUTLS=0)
@@ -524,7 +528,7 @@ install(TARGETS datachannel EXPORT LibDataChannelTargets
 
 if(MSVC AND BUILD_SHARED_LIBS)
     install(FILES $<TARGET_PDB_FILE:datachannel>
-        DESTINATION ${CMAKE_INSTALL_BINDIR} OPTIONAL)
+	DESTINATION ${CMAKE_INSTALL_BINDIR} OPTIONAL)
 endif()
 
 install(FILES ${LIBDATACHANNEL_HEADERS}
@@ -618,7 +622,7 @@ if(NOT NO_EXAMPLES)
 		add_subdirectory(examples/media-sfu)
 	endif()
 	if(NOT NO_MEDIA AND NOT NO_WEBSOCKET)
-    	add_subdirectory(examples/streamer)
+		add_subdirectory(examples/streamer)
 	endif()
 	add_subdirectory(examples/copy-paste)
 	add_subdirectory(examples/copy-paste-capi)
