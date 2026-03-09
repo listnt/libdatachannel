@@ -1,4 +1,4 @@
-#include "jitterbuffer.h"
+#include "jitterbuffer.hpp"
 
 std::vector<std::byte> jitterbuffer::addVp8Packet(std::vector<std::byte> pkg,
                                                   std::int16_t prevMarkedPkg)

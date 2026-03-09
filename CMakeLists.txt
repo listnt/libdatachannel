@@ -148,7 +148,7 @@ set(LIBDATACHANNEL_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/include/rtc/pacinghandler.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/include/rtc/rembhandler.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/include/rtc/version.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/rtc/jitterbuffer.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/rtc/jitterbuffer.hpp
 )
 
 set(LIBDATACHANNEL_IMPL_SOURCES
@@ -217,7 +217,7 @@ set(LIBDATACHANNEL_IMPL_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/impl/websocketserver.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/impl/wstransport.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/impl/wshandshake.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/src/impl/lrucache.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/impl/lrucache.hpp
 )
 
 set(TESTS_SOURCES
@@ -276,7 +276,7 @@ add_library(datachannel
 set_target_properties(datachannel PROPERTIES
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-	CXX_STANDARD 17
+	CXX_STANDARD 23
 	CXX_VISIBILITY_PRESET default)
 if(APPLE)
 	set_target_properties(datachannel PROPERTIES
@@ -291,7 +291,7 @@ add_library(datachannel-static STATIC EXCLUDE_FROM_ALL
 	${LIBDATACHANNEL_IMPL_HEADERS})
 set_target_properties(datachannel-static PROPERTIES
 	VERSION ${PROJECT_VERSION}
-	CXX_STANDARD 17)
+	CXX_STANDARD 23)
 
 target_compile_definitions(datachannel PRIVATE RTC_EXPORTS)
 if (NOT BUILD_SHARED_LIBS)
@@ -573,7 +573,7 @@ if(NOT NO_TESTS)
 
 	set_target_properties(datachannel-tests PROPERTIES
 		VERSION ${PROJECT_VERSION}
-		CXX_STANDARD 17
+		CXX_STANDARD 23
 		OUTPUT_NAME tests)
 
 	set_target_properties(datachannel-tests PROPERTIES
@@ -592,7 +592,7 @@ if(NOT NO_TESTS)
 
 	set_target_properties(datachannel-benchmark PROPERTIES
 		VERSION ${PROJECT_VERSION}
-		CXX_STANDARD 17
+		CXX_STANDARD 23
 		OUTPUT_NAME benchmark)
 
 	set_target_properties(datachannel-benchmark PROPERTIES
