@@ -23,9 +23,10 @@ class jitterbuffer {
 public:
 	jitterbuffer(){};
 	std::vector<std::byte> addVp8Packet(std::vector<std::byte> pkg, std::int16_t prevMarkedPkg);
+    std::vector<std::byte> addVp9Packet(std::vector<std::byte> pkg, std::int16_t prevMarkedPkg);
 
-	// should be used only if addPacket returned frame, i.e. frame is formed
-	bool isKeyFrame();
+    // should be used only if addPacket returned frame, i.e. frame is formed
+    bool isKeyFrame();
 	std::vector<std::uint32_t> getPacketsToNack();
 };
 
