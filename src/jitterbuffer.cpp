@@ -188,52 +188,74 @@ std::vector<std::byte> jitterbuffer::addVp9Packet(std::vector<std::byte> pkg,
     uint8_t firstByte = std::to_integer<uint8_t>(pData[0]);
 
     if (firstByte & I) {
-        descriptorSize++;
-        if (std::to_integer<uint8_t>(pData[1]) & M) {
+        if (std::to_integer<uint8_t>(pData[descriptorSize]) & M) {
             descriptorSize++;
         }
+
+        if (payloadSize < descriptorSize) {
+            return {};
+        }
+
+        descriptorSize++;
     }
 
     if (firstByte & L) {
         descriptorSize++;
+        if (!(firstByte & F)) {
+            descriptorSize++;
+        }
     }
 
-    // flexible mode
+    if (payloadSize < descriptorSize) {
+        return {};
+    }
+
     if (firstByte & F) {
         if (firstByte & P) {
             for (int i = 0; i < 3; i++) {
                 if ((std::to_integer<uint8_t>(pData[descriptorSize]) & N) == 0) {
-                    descriptorSize++;
                     break;
                 }
 
                 descriptorSize++;
+                if (payloadSize < descriptorSize) {
+                    return {};
+                }
             }
+
+            descriptorSize++;
         }
-    } else {
-        descriptorSize++;
+    }
+    if (payloadSize < descriptorSize) {
+        return {};
     }
 
-    std::uint8_t SSFirstByte = std::to_integer<uint8_t>(pData[descriptorSize]);
-    descriptorSize++;
-
-    std::uint8_t NS = (SSFirstByte & N_S) + 1;
-
-    // byte valid only if G bit is set
-    std::uint8_t N_G = 0;
-
-    std::uint8_t RTimes = 0;
-
     if (firstByte & V) {
+        std::uint8_t SSFirstByte = std::to_integer<uint8_t>(pData[descriptorSize]);
+        descriptorSize++;
+        if (payloadSize < descriptorSize) {
+            return {};
+        }
+
+        std::uint8_t NS = ((SSFirstByte & N_S) >> 5) + 1;
+
+        // byte valid only if G bit is set
+        std::uint8_t N_G = 0;
+        std::uint8_t RTimes = 0;
+
         if (SSFirstByte & Y) {
-            for (int i = 0; i < NS; i++) {
-                descriptorSize += 4;
-            }
+            descriptorSize += 4 * NS;
+        }
+        if (payloadSize < descriptorSize) {
+            return {};
         }
 
         if (SSFirstByte & G) {
             N_G = std::to_integer<uint8_t>(pData[descriptorSize]);
             descriptorSize++;
+        }
+        if (payloadSize < descriptorSize) {
+            return {};
         }
 
         for (int i = 0; i < N_G; i++) {
@@ -241,6 +263,9 @@ std::vector<std::byte> jitterbuffer::addVp9Packet(std::vector<std::byte> pkg,
 
             descriptorSize++;
             descriptorSize += RTimes;
+            if (payloadSize < descriptorSize) {
+                return {};
+            }
         }
     }
 
@@ -253,6 +278,7 @@ std::vector<std::byte> jitterbuffer::addVp9Packet(std::vector<std::byte> pkg,
 
     if (firstByte & B) {
         this->isFirstPresent = true;
+        auto payload = pkg.data() + rtpHeaderSize;
     }
 
     if (firstByte & E) {

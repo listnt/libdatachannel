@@ -1,6 +1,7 @@
 #ifndef JITTERBUFFER_H
 #define JITTERBUFFER_H
 
+#include <bitset>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -27,7 +28,7 @@ public:
 
     // should be used only if addPacket returned frame, i.e. frame is formed
     bool isKeyFrame();
-	std::vector<std::uint32_t> getPacketsToNack();
+    std::vector<std::uint32_t> getPacketsToNack();
 };
 
 #endif // JITTERBUFFER_H
