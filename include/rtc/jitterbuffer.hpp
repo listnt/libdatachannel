@@ -19,11 +19,13 @@ class jitterbuffer {
 	std::uint16_t lenght = 0;
 	bool isFirstPresent = false;
 	bool isLastPresent = false;
-	bool isFormed = false;
+    bool isFormed = false;
 
 public:
-	jitterbuffer(){};
-	std::vector<std::byte> addVp8Packet(std::vector<std::byte> pkg, std::int16_t prevMarkedPkg);
+    int nackRequested = 0;
+
+    jitterbuffer() {};
+    std::vector<std::byte> addVp8Packet(std::vector<std::byte> pkg, std::int16_t prevMarkedPkg);
     std::vector<std::byte> addVp9Packet(std::vector<std::byte> pkg, std::int16_t prevMarkedPkg);
 
     // should be used only if addPacket returned frame, i.e. frame is formed

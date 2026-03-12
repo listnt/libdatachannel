@@ -6,6 +6,7 @@
 #include <list>
 #include <map>
 #include <stdexcept>
+#include <utility>
 
 template<class KEY_T, class VAL_T>
 class LRUCache

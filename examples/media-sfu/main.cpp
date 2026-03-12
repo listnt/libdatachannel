@@ -95,8 +95,8 @@ int main() {
 			});
 			rtc::Description::Video media("video", rtc::Description::Direction::SendOnly);
 			media.addH264Codec(96);
-			media.setBitrate(3000);
-			media.addSSRC(targetSSRC, "video-send");
+            media.setBitrate(3000);
+            media.addSSRC(targetSSRC, "video-send");
 
 			r->track = r->conn->addTrack(media);
 

@@ -278,7 +278,6 @@ std::vector<std::byte> jitterbuffer::addVp9Packet(std::vector<std::byte> pkg,
 
     if (firstByte & B) {
         this->isFirstPresent = true;
-        auto payload = pkg.data() + rtpHeaderSize;
     }
 
     if (firstByte & E) {
@@ -398,4 +397,3 @@ std::vector<std::uint32_t> jitterbuffer::getPacketsToNack() {
 
   return nacks;
 }
-
