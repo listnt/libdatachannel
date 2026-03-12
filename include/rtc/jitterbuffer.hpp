@@ -1,14 +1,9 @@
 #ifndef JITTERBUFFER_H
 #define JITTERBUFFER_H
 
-#include <bitset>
-#include <chrono>
-#include <cstddef>
-#include <cstdint>
-#include <cstring>
-#include <map>
+#include "common.hpp"
 
-#include "rtc/rtc.hpp"
+#include <rtc/rtc.hpp>
 
 class jitterbuffer {
 	std::map<std::int16_t, std::vector<std::byte>> _data;

@@ -1,4 +1,5 @@
 #include "jitterbuffer.hpp"
+#include <netinet/in.h>
 
 std::vector<std::byte> jitterbuffer::addVp8Packet(std::vector<std::byte> pkg,
                                                   std::int16_t prevMarkedPkg)
@@ -337,19 +338,14 @@ bool jitterbuffer::isKeyFrame()
            == 0;
 }
 
-std::vector<std::uint32_t> jitterbuffer::getPacketsToNack() {
-  if (this->isFormed) {
-    return {};
-  }
+std::vector<std::uint32_t> jitterbuffer::getPacketsToNack()
+{
+    if (this->isFormed) {
+        return {};
+    }
 
-  std::deque<std::uint16_t> missingSequence;
+    std::deque<std::uint16_t> missingSequence;
 
-  auto now = std::chrono::system_clock::now();
-  auto duration = now.time_since_epoch();
-  auto nowInMs = std::chrono::duration_cast<std::chrono::milliseconds>(duration)
-                     .count();
-
-  if (nowInMs - this->decoding_started_ts > 150) {
     for (std::uint16_t i = 0; i <= this->lenght; i++) {
       auto idx = this->firstSeqNum + i;
       if (!this->_data.contains(idx)) {
@@ -371,29 +367,31 @@ std::vector<std::uint32_t> jitterbuffer::getPacketsToNack() {
         missingSequence.push_back(endVal + i);
       }
     }
-  }
 
-  if (missingSequence.size() == 0) {
-    return {};
-  }
-
-  std::uint16_t pid = missingSequence.front();
-  std::uint16_t blp = 0;
-  std::vector<std::uint32_t> nacks;
-
-  for (size_t i = 1; i < missingSequence.size(); i++) {
-    std::uint16_t dist = missingSequence[i] - pid;
-
-    if (dist > 16) {
-      nacks.push_back((std::uint32_t)pid << 16 | blp);
-
-      pid = missingSequence[i];
-      blp = 0;
-    } else {
-      blp |= (1 << (dist - 1));
+    if (missingSequence.size() == 0) {
+        return {};
     }
-  }
-  nacks.push_back((std::uint32_t)pid << 16 | blp);
 
-  return nacks;
+    std::uint16_t pid = missingSequence.front();
+    std::uint16_t blp = 0;
+    std::uint32_t fci = 0;
+    std::vector<std::uint32_t> nacks;
+
+    for (size_t i = 1; i < missingSequence.size(); i++) {
+        std::uint16_t dist = missingSequence[i] - pid;
+
+        if (dist > 16) {
+            fci = (((std::uint32_t) pid) << 16) | blp;
+            nacks.push_back(htonl(fci));
+
+            pid = missingSequence[i];
+            blp = 0;
+        } else {
+            blp |= (1 << (dist - 1));
+        }
+    }
+    fci = (((std::uint32_t) pid) << 16) | blp;
+    nacks.push_back(htonl(fci));
+
+    return nacks;
 }
