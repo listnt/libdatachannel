@@ -20,7 +20,6 @@ public:
     jitterbuffer() {};
     std::vector<std::byte> addVp8Packet(std::vector<std::byte> pkg, std::uint32_t lastCompletedTs);
     std::vector<std::byte> addVp9Packet(std::vector<std::byte> pkg, std::uint32_t lastCompletedTs);
-    std::vector<std::byte> addRtxPacket(std::vector<std::byte> pkg, std::uint32_t lastCompletedTs);
 
     // should be used only if addPacket returned frame, i.e. frame is formed
     bool isKeyFrame();
