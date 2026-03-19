@@ -333,6 +333,10 @@ bool jitterbuffer::isKeyFrame()
 
 std::vector<rtc::RtcpNackPart> jitterbuffer::getPacketsToNack()
 {
+    if (this->_data.size() == 0) {
+        throw std::out_of_range("there is no data in the frame");
+    }
+
     if (this->isFormed) {
         return {};
     }
@@ -346,19 +350,31 @@ std::vector<rtc::RtcpNackPart> jitterbuffer::getPacketsToNack()
         }
     }
 
-    if (!this->isFirstPresent && !missingSequence.empty()) {
-      std::uint16_t startVal =
-          static_cast<std::uint16_t>(missingSequence.front());
-      for (std::uint16_t i = 1; i <= 16; i++) {
-        missingSequence.push_front(startVal - i);
-      }
+    if (!this->isFirstPresent) {
+        std::uint16_t startVal;
+        if (!missingSequence.empty()) {
+            startVal = static_cast<std::uint16_t>(missingSequence.front());
+        } else {
+            startVal = this->firstSeqNum;
+        }
+
+        for (std::uint16_t i = 1; i <= 16; i++) {
+            missingSequence.push_front(startVal - i);
+        }
     }
 
-    if (!this->isLastPresent && !missingSequence.empty()) {
-      std::uint16_t endVal = static_cast<std::uint16_t>(missingSequence.back());
-      for (std::uint16_t i = 1; i <= 16; i++) {
-        missingSequence.push_back(endVal + i);
-      }
+    if (!this->isLastPresent) {
+        std::uint16_t endVal;
+
+        if (!missingSequence.empty()) {
+            endVal = static_cast<std::uint16_t>(missingSequence.back());
+        } else {
+            endVal = this->firstSeqNum + this->lenght;
+        }
+
+        for (std::uint16_t i = 1; i <= 16; i++) {
+            missingSequence.push_back(endVal + i);
+        }
     }
 
     if (missingSequence.size() == 0) {
@@ -387,9 +403,6 @@ std::vector<rtc::RtcpNackPart> jitterbuffer::getPacketsToNack()
     fci.setPid(pid);
     fci.setBlp(blp);
     nacks.push_back(fci);
-    if (nacks.size() > 30) {
-        std::cout << nacks.size() << std::endl;
-    }
 
     return nacks;
 }
