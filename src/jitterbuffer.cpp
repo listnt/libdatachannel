@@ -358,7 +358,7 @@ std::vector<rtc::RtcpNackPart> jitterbuffer::getPacketsToNack()
             startVal = this->firstSeqNum;
         }
 
-        for (std::uint16_t i = 1; i <= 16; i++) {
+        for (std::uint16_t i = 1; i <= 4; i++) {
             missingSequence.push_front(startVal - i);
         }
     }
@@ -372,7 +372,7 @@ std::vector<rtc::RtcpNackPart> jitterbuffer::getPacketsToNack()
             endVal = this->firstSeqNum + this->lenght;
         }
 
-        for (std::uint16_t i = 1; i <= 16; i++) {
+        for (std::uint16_t i = 1; i <= 4; i++) {
             missingSequence.push_back(endVal + i);
         }
     }
