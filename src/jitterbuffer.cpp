@@ -1,7 +1,7 @@
 #include "jitterbuffer.hpp"
 #include <netinet/in.h>
 
-std::vector<std::byte> jitterbuffer::addVp8Packet(std::vector<std::byte> pkg,
+std::vector<std::byte> jitterbuffer::addVp8Packet(const std::vector<std::byte> &&pkg,
                                                   std::uint32_t lastCompletedTs)
 {
     // First byte
@@ -38,7 +38,7 @@ std::vector<std::byte> jitterbuffer::addVp8Packet(std::vector<std::byte> pkg,
         return {}; // Empty payload
     }
 
-    const std::byte *payloadData = reinterpret_cast<std::byte *>(pkg.data() + rtpHeaderSize);
+    const std::byte *payloadData = reinterpret_cast<const std::byte *>(pkg.data() + rtpHeaderSize);
     size_t payloadSize = pkg.size() - rtpHeaderSize - paddingSize;
 
     if (payloadSize < 1) {
@@ -129,7 +129,7 @@ std::vector<std::byte> jitterbuffer::addVp8Packet(std::vector<std::byte> pkg,
     return {};
 }
 
-std::vector<std::byte> jitterbuffer::addVp9Packet(std::vector<std::byte> pkg,
+std::vector<std::byte> jitterbuffer::addVp9Packet(const std::vector<std::byte> &&pkg,
                                                   std::uint32_t lastCompletedTs)
 {
     // first byte
@@ -171,7 +171,7 @@ std::vector<std::byte> jitterbuffer::addVp9Packet(std::vector<std::byte> pkg,
         return {}; // Empty payload
     }
 
-    const std::byte *pData = reinterpret_cast<std::byte *>(pkg.data() + rtpHeaderSize);
+    const std::byte *pData = reinterpret_cast<const std::byte *>(pkg.data() + rtpHeaderSize);
     size_t payloadSize = pkg.size() - rtpHeaderSize - paddingSize;
 
     if (payloadSize < 1) {
